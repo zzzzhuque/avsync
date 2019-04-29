@@ -4,9 +4,12 @@ import cv2
 import os
 import tqdm
 import ipdb
+import warnings
 import torch
 import torch.nn as nn
 import numpy as np
+from python_speech_features import mfcc
+import scipy.io.wavfile as wav
 
 
 class processdata(object):
@@ -19,13 +22,18 @@ class processdata(object):
     def processMP4(self, dataroot):
         #ipdb.set_trace()
         filenames = os.listdir(dataroot)
-        for filename in filenames:
+        for filename in tqdm.tqdm(filenames):
             mp4path = os.path.join(dataroot, filename)
             if os.path.isdir(mp4path):
                 self.processMP4(mp4path)
             else:
                if mp4path[-3:] == 'mp4':
-                   #audio extract
+                   cmd1 = 'mkdir -p ' + mp4path[:-4]
+                   os.system(cmd1)
+                   #===========================================
+                   #=======    extract mfcc    ================
+                   #===========================================
+                   self.extractMfcc(mp4path)
                    #===========================================
                    #=======    extract frames    ==============
                    #===========================================
@@ -33,28 +41,46 @@ class processdata(object):
                else:
                    continue
 
-    def extractFrame(self, mp4path):
-        cmd1 = 'mkdir -p ' + mp4path[:-4]
+    def extractMfcc(self, mp4path):
+        audiopath = mp4path[:-4] + '.wav'
+        cmd1 = "ffmpeg -y -i %s -async 1 -ac 1 -vn -acodec pcm_s16le -ar 16000 %s > /dev/null 2>&1" % (mp4path, audiopath)
         os.system(cmd1)
+        (sr, wavfile) = wav.read(audiopath)
+        mfcc_feat = mfcc(wavfile, sr)
+        mfcc_feat = mfcc_feat.transpose()
+        #ipdb.set_trace()
+        np.save(mp4path[:-4] + '/mfcc.npy', mfcc_feat)
 
+
+    def extractFrame(self, mp4path):
         videoCapture = cv2.VideoCapture()
         videoCapture.open(mp4path)
 
         fps = videoCapture.get(cv2.CAP_PROP_FPS)
         frames = videoCapture.get(cv2.CAP_PROP_FRAME_COUNT)
+
+        lips = []
         for i in range(int(frames)):
             ret, frame = videoCapture.read()
             #=================================================
             #=============   landmark detect    ==============
             #=================================================
-            lipImg = self.landmarkDetect(frame)
-            if lipImg == []:
-                cmd2 = 'rm ' + mp4path[:-4] + '/*'
-                print(cmd2)
-                #os.system(cmd2)
-                break
-            else:
-                cv2.imwrite(mp4path[:-4]+('/gray%04d.jpg'%i), lipImg)
+            lipImg = self.landmarkDetect(frame) # size=(120, 120)
+            with warnings.catch_warnings():
+                warnings.simplefilter(action='ignore', category=FutureWarning)
+                warnings.simplefilter(action='ignore', category=DeprecationWarning)
+                if lipImg == []:    # this kind of judgement will trigger warning
+                    #cmd2 = 'rm ' + mp4path[:-4] + '/*'
+                    #print(cmd2)
+                    #os.system(cmd2)
+                    #break
+                    return
+                else:
+                    #cv2.imwrite(mp4path[:-4]+('/gray%04d.jpg'%i), lipImg)
+                    lips.append(lipImg)
+        #ipdb.set_trace()
+        np.save(mp4path[:-4]+'/frames.npy', lips)
+        return
 
     def landmarkDetect(self, frame):
         #=============================================
@@ -72,11 +98,11 @@ class processdata(object):
                 if(idx==48 or idx==51 or idx==54 or idx==57):
                     points.append([point[0,0], point[0,1]])
                     pos = (point[0,0], point[0,1])
-                    cv2.circle(frame, pos, 2, (255,0,0), -1)
+                    #cv2.circle(frame, pos, 2, (255,0,0), -1)
         if len(points) != 4:
             return []
-        print('key points', points)
-        cv2.imshow('facialpoint', frame)
+        #print('key points', points)
+        #cv2.imshow('facialpoint', frame)
         #===================================================
         #===============    warp affine   ==================
         #===================================================
@@ -87,13 +113,13 @@ class processdata(object):
         RAangle = math.atan(
                   1.0*(points[2][1]-points[0][1])/(points[2][0]-points[0][0])
         )
-        print('RAangle:', RAangle)
+        #print('RAangle:', RAangle)
         angle = 180.0/math.pi*RAangle
-        print('angle:', angle)
+        #print('angle:', angle)
         scale = 1.0
         M = cv2.getRotationMatrix2D(center, angle, scale)
         rotateImg = cv2.warpAffine(frame, M, (w,h))
-        cv2.imshow('rotate', rotateImg)
+        #cv2.imshow('rotate', rotateImg)
 
         #===================================================
         #=============    extract lip    ===================
@@ -105,8 +131,8 @@ class processdata(object):
         rightDown = (centerX+halfplusMouth, centerY+halfplusMouth)
         lipImg = rotateImg[leftUp[1]:rightDown[1], leftUp[0]:rightDown[0]]
         resizeImg = cv2.resize(lipImg, (120, 120), interpolation=cv2.INTER_CUBIC)
-        cv2.imshow('resize', resizeImg)
-        cv2.waitKey(0)
+        #cv2.imshow('resize', resizeImg)
+        #cv2.waitKey(0)
         return resizeImg
 
 
