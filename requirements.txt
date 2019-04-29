@@ -1,0 +1,6 @@
+tqdm
+ipdb
+torch
+torchvision
+cv2
+visdom
