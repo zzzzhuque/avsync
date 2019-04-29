@@ -1,3 +1,4 @@
+import math
 import dlib
 import cv2
 import os
@@ -42,16 +43,67 @@ class processdata(object):
         frames = videoCapture.get(cv2.CAP_PROP_FRAME_COUNT)
         for i in range(int(frames)):
             ret, frame = videoCapture.read()
+            #=================================================
+            #=============   landmark detect    ==============
+            #=================================================
             lipImg = self.landmarkDetect(frame)
             if lipImg == []:
                 cmd2 = 'rm ' + mp4path[:-4] + '/*'
+                print(cmd2)
                 #os.system(cmd2)
                 break
             else:
                 cv2.imwrite(mp4path[:-4]+('/gray%04d.jpg'%i), lipImg)
 
+    def landmarkDetect(self, frame):
+        #=============================================
+        #============    landmark detect    ==========
+        #=============================================
+        points = []
+        rects = detector(frame, 1)
+        for i in range(len(rects)):
+            landmarks = np.matrix([
+                        [p.x, p.y] for p in predictor(frame, rects[i]).parts()
+            ])
+            if landmarks == []:
+                return []
+            frame = frame.copy()
+            for idx, point in enumerate(landmarks):
+                if(idx==48 or idx==51 or idx==54 or idx==57):
+                    points.append([point[0,0], point[0,1]])
+                    pos = (point[0,0], pint[0,1])
+                    cv2.circle(facialpoints, pos, 2, (255,0,0), -1)
+        cv2.imshow('facialpoint', facialpoints)
         
-        
+        #===================================================
+        #===============    warp affine   ==================
+        #===================================================
+        (h, w) = frame.shape[:2]
+        centerX = (points[0][0]+points[2][0])/2.0
+        centerY = (points[0][1]+points[2][1])/2.0
+        center = (centerX, centerY)
+        RAangle = math.atan(
+                  (points[2][1]-points[0][1])/(points[2][0]-points[0][0])
+        )
+        angle = 180.0/math.pi*RAangle
+        scale = 1.0
+        M = cv2.getRotationMatrix2D(center, angle, scale)
+        rotateImg = cv2.warpAffine(frame, M, (w,h))
+        cv2.imshow('rotate', rotateImg)
+
+        #===================================================
+        #=============    extract lip    ===================
+        #===================================================
+        halfplusMouth = 1.5/2.0*math.sqrt(
+                    math.pow(points[2][1]-points[0][1], 2) + math.pow(points[2][0]-points[0][0], 2)
+        )
+        leftUp = (centerX-halfplusMouth, centerY-halfplusMouth)
+        rightDown = (centerX+halfplusMouth, centerY+halfplusMouth)
+        lipImg = rotateImg[leftUp[1]:rightDown[1], leftUp[0]:rightDown[0], :]
+        resizeImg = cv2.resize(lipImg, interpolation=cv2.INTER_CUBIC)
+        cv2.imshow('resize', resizeImg)
+        cv2.waitKey(0)
+        return resizeImg
 
 
 
