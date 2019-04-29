@@ -4,3 +4,4 @@ torch
 torchvision
 cv2
 visdom
+dlib
