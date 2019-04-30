@@ -8,11 +8,12 @@ import warnings
 import torch
 import torch.nn as nn
 import numpy as np
+from torch.utils.data import Dataset, DataLoader
 from python_speech_features import mfcc
 import scipy.io.wavfile as wav
 
 
-class processdata(object):
+class createDataset(object):
     def __init__(self):
         predictor_path = './faceDetectModel/shape_predictor_68_face_landmarks.dat'
         self.detector = dlib.get_frontal_face_detector()
@@ -28,7 +29,7 @@ class processdata(object):
                 self.processMP4(mp4path)
             else:
                if mp4path[-3:] == 'mp4':
-                   cmd1 = 'mkdir -p ' + mp4path[:-4]
+                   cmd1 = 'mkdir -p ' + mp4path[:-4] + ' > /dev/null 2>&1'
                    os.system(cmd1)
                    #===========================================
                    #=======    extract mfcc    ================
@@ -135,10 +136,47 @@ class processdata(object):
         #cv2.waitKey(0)
         return resizeImg
 
+class lipDataset(Dataset):
+    '''
+    dataroot: dataset root path
+    augment: image augment or not
+    '''
+    def __init__(self, dataroot, isTrain, isTest, isVal, augment=None):
+        super(lipDataset, self).__init__()
+        self.isTrain = isTrain
+        self.isTest = isTest
+        self.isval = isVal
+        self.datapathSet = []
+        if self.isTrain:
+            self.findpath(dataroot, 'train')
+        if self.isTest:
+            self.findpath(dataroot, 'test')
+        if self.isVal:
+            self.findpath(dataroot, 'val')
+
+    def findpath(self, dataroot, flag):
+        filenames = os.listdir(dataroot)
+        for filename in filenames:
+            mp4path = os.path.join(dataroot, filename)
+            if os.path.isdir(mp4path):
+                self.findpath(mp4path, flag)
+            else:
+                if mp4path[-3:]=='mp4' and os.path.exists(mp4path[:-4]+'/frames.npy') and os.path.exists(mp4path[:-4]+'/mfcc.npy') and (flag in mp4path):
+                    self.datapathSet.append(mp4path[:-4])
+                else:
+                    continue
+
+            
+
+
 
 
 
 
 if __name__ == '__main__':
-    dataset = processdata()
-    dataset.processMP4('/home/litchi/zhuque/expdata')
+    #dataset = createDataset()
+    #dataset.processMP4('/home/litchi/zhuque/expdata')
+    lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True)
+    for path in lippath.datapathSet:
+        print(path)
+    
