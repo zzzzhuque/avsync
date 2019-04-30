@@ -1,4 +1,5 @@
 # coding=utf-8
+import fire
 import config
 import torch
 import numpy as np
@@ -8,6 +9,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch import autograd
 from models.model import *
+from util.Visualizer import Visualizer
 
 
 class ContrastiveLoss(nn.Module):
@@ -28,6 +30,13 @@ class ContrastiveLoss(nn.Module):
                                      )
         )
         return loss_contrastive
+
+def train():
+    vis = Visualizer('avsync')  # opt.env
+    
+
+if __name__ == '__main__':
+    fire.Fire() # python main.py <function> --args=xxx
  
 
 if __name__ == '__main__':

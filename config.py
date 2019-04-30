@@ -1,8 +1,8 @@
 #coding=utf-8
 class config(object):
     env = 'default' # visdom的环境
-    model1 = 'audionetwork'
-    model2 = 'visualnetwork'
+    model1 = 'audioNetwork'
+    model2 = 'videoNetwork'
 
     train_data_root = './data/train' # 训练集存放路径
     test_data_root = './data/test' # 测试集存放路径

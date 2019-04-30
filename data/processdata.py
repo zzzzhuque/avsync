@@ -13,7 +13,9 @@ from torch.utils.data import Dataset, DataLoader
 from python_speech_features import mfcc
 import scipy.io.wavfile as wav
 
-
+#==================================================================================
+#=================    extract mfcc&frames and save in mfcc   ======================
+#==================================================================================
 class createDataset(object):
     def __init__(self):
         predictor_path = './faceDetectModel/shape_predictor_68_face_landmarks.dat'
@@ -204,10 +206,10 @@ class lipDataset(Dataset):
 
 
 if __name__ == '__main__':
-    #dataset = createDataset()
-    #dataset.processMP4('/home/litchi/zhuque/expdata')
-    lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True)
-    trainloader = DataLoader(lippath, batch_size=2, num_workers=4,shuffle=True)
-    for (vfeat, afeat, label) in trainloader:
-        ipdb.set_trace()
-        print(label)
+    dataset = createDataset()
+    dataset.processMP4('/home/litchi/zhuque/expdata')
+    #lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True)
+    #trainloader = DataLoader(lippath, batch_size=2, num_workers=4,shuffle=True)
+    #for (vfeat, afeat, label) in trainloader:
+    #    ipdb.set_trace()
+    #    print(label)

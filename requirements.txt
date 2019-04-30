@@ -5,3 +5,6 @@ torchvision
 cv2
 visdom
 dlib
+fire
+python_speech_features
+scipy
