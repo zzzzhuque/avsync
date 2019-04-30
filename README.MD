@@ -1,1 +1,1 @@
-audio video snc
+audio video sync
