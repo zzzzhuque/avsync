@@ -1,4 +1,5 @@
 import math
+import random
 import dlib
 import cv2
 import os
@@ -170,7 +171,32 @@ class lipDataset(Dataset):
                 else:
                     continue
 
-            
+    def __getitem__(self, idx):
+        # 1-match, 0-not match
+        label = 1 if random.random() >= 0.5 else 0  # random->[0, 1)
+        datadir = self.datapathSet[idx]
+        mfcc = np.load(datadir+'/mfcc.npy')
+        frames = np.load(datadir+'/frames.npy')
+        #ipdb.set_trace()
+        if label:
+            idx1 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))   # randint->[a, b]
+            afeat = mfcc[:, idx1*20:(idx1+1)*20]    # slice [,)
+            vfeat = frames[idx1*5:(idx1+1)*5 :, :]
+            ipdb.set_trace()
+            return (vfeat, afeat, label)
+        else:
+            idx1 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))
+            idx2 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))
+            while(idx1 == idx2):    # avoid same idx
+                idx2 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))
+            afeat = mfcc[:, idx1*20:(idx1+1)*20]
+            vfeat = frames[idx2*5:(idx2+1)*5, :, :]
+            ipdb.set_trace()
+            return (vfeat, afeat, label)
+
+
+    def __len__(self):
+        return len(self.datapathSet)
 
 
 
@@ -181,7 +207,4 @@ if __name__ == '__main__':
     #dataset = createDataset()
     #dataset.processMP4('/home/litchi/zhuque/expdata')
     lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True)
-    print(len(lippath.datapathSet))
-    for path in sorted(lippath.datapathSet):
-        print(path)
-    
+    lippath[10]
