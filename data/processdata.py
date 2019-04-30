@@ -145,8 +145,12 @@ class lipDataset(Dataset):
         super(lipDataset, self).__init__()
         self.isTrain = isTrain
         self.isTest = isTest
-        self.isval = isVal
+        self.isVal = isVal
         self.datapathSet = []
+        self.augment = augment
+        #=====================================================================
+        #=========   collect data path depend on status    ===================
+        #=====================================================================
         if self.isTrain:
             self.findpath(dataroot, 'train')
         if self.isTest:
@@ -177,6 +181,7 @@ if __name__ == '__main__':
     #dataset = createDataset()
     #dataset.processMP4('/home/litchi/zhuque/expdata')
     lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True)
-    for path in lippath.datapathSet:
+    print(len(lippath.datapathSet))
+    for path in sorted(lippath.datapathSet):
         print(path)
     
