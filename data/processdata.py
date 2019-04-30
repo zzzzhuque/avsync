@@ -182,7 +182,7 @@ class lipDataset(Dataset):
             idx1 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))   # randint->[a, b]
             afeat = mfcc[:, idx1*20:(idx1+1)*20]    # slice [,)
             vfeat = frames[idx1*5:(idx1+1)*5 :, :]
-            ipdb.set_trace()
+            #ipdb.set_trace()
             return (vfeat, afeat, label)
         else:
             idx1 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))
@@ -191,7 +191,7 @@ class lipDataset(Dataset):
                 idx2 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))
             afeat = mfcc[:, idx1*20:(idx1+1)*20]
             vfeat = frames[idx2*5:(idx2+1)*5, :, :]
-            ipdb.set_trace()
+            #ipdb.set_trace()
             return (vfeat, afeat, label)
 
 
@@ -207,4 +207,7 @@ if __name__ == '__main__':
     #dataset = createDataset()
     #dataset.processMP4('/home/litchi/zhuque/expdata')
     lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True)
-    lippath[10]
+    trainloader = DataLoader(lippath, batch_size=2, num_workers=4,shuffle=True)
+    for (vfeat, afeat, label) in trainloader:
+        ipdb.set_trace()
+        print(label)
