@@ -7,7 +7,6 @@ import tqdm
 import ipdb
 import warnings
 import torch
-import torch.nn as nn
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from python_speech_features import mfcc
@@ -184,6 +183,10 @@ class lipDataset(Dataset):
             idx1 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))   # randint->[a, b]
             afeat = mfcc[:, idx1*20:(idx1+1)*20]    # slice [,)
             vfeat = frames[idx1*5:(idx1+1)*5 :, :]
+            
+            afeat = torch.from_numpy(afeat).unsqueeze(0).double()
+            vfeat = torch.from_numpy(vfeat).double()
+            label = torch.DoubleTensor([label])
             #ipdb.set_trace()
             return (vfeat, afeat, label)
         else:
@@ -193,6 +196,10 @@ class lipDataset(Dataset):
                 idx2 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))
             afeat = mfcc[:, idx1*20:(idx1+1)*20]
             vfeat = frames[idx2*5:(idx2+1)*5, :, :]
+
+            afeat = torch.from_numpy(afeat).unsqueeze(0).double()
+            vfeat = torch.from_numpy(vfeat).double()
+            label = torch.DoubleTensor([label])
             #ipdb.set_trace()
             return (vfeat, afeat, label)
 
@@ -206,10 +213,10 @@ class lipDataset(Dataset):
 
 
 if __name__ == '__main__':
-    dataset = createDataset()
-    dataset.processMP4('/home/litchi/zhuque/expdata')
-    #lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True)
-    #trainloader = DataLoader(lippath, batch_size=2, num_workers=4,shuffle=True)
-    #for (vfeat, afeat, label) in trainloader:
-    #    ipdb.set_trace()
-    #    print(label)
+    #dataset = createDataset()
+    #dataset.processMP4('/home/litchi/zhuque/expdata')
+    lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True)
+    trainloader = DataLoader(lippath, batch_size=2, num_workers=4,shuffle=True)
+    for (vfeat, afeat, label) in trainloader:
+        ipdb.set_trace()
+        print(label)

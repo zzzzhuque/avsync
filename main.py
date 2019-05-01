@@ -1,6 +1,6 @@
 # coding=utf-8
 import fire
-import config
+import ipdb
 import torch
 import numpy as np
 import cv2
@@ -8,8 +8,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch import autograd
-from models.model import *
-from util.Visualizer import Visualizer
+from torch.utils.data import DataLoader
+from config import opt
+from models.model import videoNetwork, audioNetwork
+from utils.Visualizer import Visualizer
+from data.processdata import lipDataset
 
 
 class ContrastiveLoss(nn.Module):
@@ -31,50 +34,51 @@ class ContrastiveLoss(nn.Module):
         )
         return loss_contrastive
 
-def train():
-    vis = Visualizer('avsync')  # opt.env
-    
+def train(dataroot, isTrain, isTest, isVal, augment=None):
+    #============================================
+    #============    setup visdom    ============
+    #============================================
+    #vis = Visualizer('avsync')  # opt.env
 
-if __name__ == '__main__':
-    fire.Fire() # python main.py <function> --args=xxx
- 
+    #============================================
+    #=============   load model    ==============
+    #============================================
+    anetwork = audioNetwork().double()
+    vnetwork = videoNetwork().double()
 
-if __name__ == '__main__':
-    #====================================================
-    #==============   get audio feature =================
-    #====================================================
-    ainput = torch.from_numpy(np.load('./data/mfccT.npy'))
-    ainput = ainput.unsqueeze(0)
-    ainput = ainput.unsqueeze(0).double() # 转换输入tensor的数据类型
-    anetwork = audioNetwork().double() # 转换神经网络的数据类型
-    afeat = anetwork.forward(ainput)
-    #print(afeat.shape)
-    
-    #====================================================
-    #============   get video feature    ================
-    #====================================================
-    images = []
-    for i in range(5):
-        img = cv2.imread('./data/material/grayimage-00000'+str(i)+'.jpg')
-        img = cv2.resize(img, (120, 120), interpolation=cv2.INTER_CUBIC)
-        #print(img.shape)
-        images.append(img[:, :, 0])
-    vinput = torch.DoubleTensor([np.array(images)])
-    #print(vinput.shape)
-    vnetwork = videoNetwork(5).double()
-    vfeat = vnetwork.forward(vinput)
-    #print(vfeat.shape)
+    #============================================
+    #============    load data    ===============
+    #============================================
+    trainData = lipDataset(dataroot, True, False, False, None)
+    trainDataLoader = DataLoader(
+                      trainData,
+                      batch_size=opt.batch_size,
+                      num_workers=opt.num_workers,
+                      shuffle=opt.shuffle
+    )
 
-    #===================================================
-    #=============   back propogation   ================
-    #===================================================
+    #============================================
+    #======    optimizer and loss   =============
+    #============================================
+    audioOptimizer = optim.SGD(anetwork.parameters(), opt.audiolr, opt.audioMomentum)
+    videoOptimizer = optim.SGD(vnetwork.parameters(), opt.videolr, opt.videoMomentum)
     criterion = ContrastiveLoss()
-    audiooptimizer = optim.SGD(anetwork.parameters(), lr=0.01, momentum=0.9)
-    videooptimizer = optim.SGD(vnetwork.parameters(), lr=0.01, momentum=0.9)
-    audiooptimizer.zero_grad()
-    videooptimizer.zero_grad()
-    loss = criterion.forward(vfeat, afeat, 0)
-    loss.backward()
-    audiooptimizer.step()
-    videooptimizer.step()
 
+    # start training
+    for epoch in range(opt.max_epoch):
+        for idx, (vinput, ainput, label) in enumerate(trainDataLoader):
+            audioOptimizer.zero_grad()
+            videoOptimizer.zero_grad()
+            vfeat = vnetwork.forward(vinput)
+            afeat = anetwork.forward(ainput)
+            #ipdb.set_trace()
+            loss = criterion.forward(vfeat, afeat, label)
+            print('loss: ', torch.mean(loss))
+            loss.backward()
+            audioOptimizer.step()
+            videoOptimizer.step()
+
+    
+
+if __name__ == '__main__':
+    fire.Fire() # python main.py train --dataroot='~/zhuque/expdata' --isTrain=True --isTest=False --isVal=False
