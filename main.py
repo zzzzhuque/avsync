@@ -81,4 +81,4 @@ def train(dataroot, isTrain, isTest, isVal, augment=None):
     
 
 if __name__ == '__main__':
-    fire.Fire() # python main.py train --dataroot='~/zhuque/expdata' --isTrain=True --isTest=False --isVal=False
+    fire.Fire() # python main.py train --dataroot='/home/litchi/zhuque/expdata' --isTrain=True --isTest=False --isVal=False
