@@ -7,7 +7,6 @@ import cv2
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from config import opt
 from models.model import videoNetwork, audioNetwork
@@ -47,8 +46,8 @@ def train(dataroot, isTrain, isTest, isVal, augment=None):
     #============================================
     #=============   load model    ==============
     #============================================
-    anetwork = audioNetwork().double()
-    vnetwork = videoNetwork().double()
+    anetwork = audioNetwork().to(opt.device)
+    vnetwork = videoNetwork().to(opt.device)
 
     #============================================
     #============    load data    ===============
@@ -71,9 +70,9 @@ def train(dataroot, isTrain, isTest, isVal, augment=None):
     # start training
     for epoch in range(opt.max_epoch):
         for idx, (vinput, ainput, label) in enumerate(trainDataLoader):
-            vinput = Variable(vinput)
-            ainput = Variable(ainput)
-            label = Variable(label)
+            vinput = vinput.to(opt.device)
+            ainput = ainput.to(opt.device)
+            label = label.to(opt.device)
 
             audioOptimizer.zero_grad()
             videoOptimizer.zero_grad()
@@ -81,10 +80,13 @@ def train(dataroot, isTrain, isTest, isVal, augment=None):
             afeat = anetwork.forward(ainput)
             #ipdb.set_trace()
             loss = criterion.forward(vfeat, afeat, label)
-            print('loss: ', torch.mean(loss))
+            print('loss: ', loss)
             loss.backward()
             audioOptimizer.step()
             videoOptimizer.step()
+
+        anetwork.save()
+        vnetwork.save()
 
     
 

@@ -1,4 +1,6 @@
 #coding=utf-8
+import torch
+
 class config(object):
     env = 'default' # visdom的环境
     #model1 = 'audioNetwork'
@@ -6,7 +8,7 @@ class config(object):
 
     #train_data_root = './data/train' # 训练集存放路径
     #test_data_root = './data/test' # 测试集存放路径
-    #load_model_path = './checkpoints/model.pth' # 加载预训练模型，为none则不加载
+    load_model_path = './checkpoints' # 加载预训练模型，为none则不加载
 
     batch_size = 4
     num_workers = 4 # 加载数据的线程数
@@ -17,14 +19,16 @@ class config(object):
 
     max_epoch = 1 # 训练次数
 
-    audiolr = 0.01
+    audiolr = 0.001
     audioMomentum = 0.9
-    videolr = 0.01
+    videolr = 0.001
     videoMomentum = 0.9
+
+    use_gpu = True
+    device = torch.device('cuda') if use_gpu else torch.device('cpu')
 
     #lr_decay = 0.95 # 当loss上升，调整lr=lr*lr_decay
     #weight_decay = 1e-4 # 损失函数
 
-    #frames = 5
 
 opt = config()

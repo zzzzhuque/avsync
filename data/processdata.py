@@ -234,10 +234,10 @@ class lipDataset(Dataset):
 
 
 if __name__ == '__main__':
-    #dataset = createDataset()
-    #dataset.processMP4('/home/litchi/zhuque/expdata')
-    lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True)
-    lippath[5]
+    dataset = createDataset()
+    dataset.processMP4('/home/litchi/zhuque/lipread_mp4')
+    #lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True)
+    #lippath[5]
     #trainloader = DataLoader(lippath, batch_size=2, num_workers=4, shuffle=True)
     #for (vfeat, afeat, label) in trainloader:
     #    ipdb.set_trace()
