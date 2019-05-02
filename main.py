@@ -7,7 +7,7 @@ import cv2
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch import autograd
+from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from config import opt
 from models.model import videoNetwork, audioNetwork
@@ -67,6 +67,10 @@ def train(dataroot, isTrain, isTest, isVal, augment=None):
     # start training
     for epoch in range(opt.max_epoch):
         for idx, (vinput, ainput, label) in enumerate(trainDataLoader):
+            vinput = Variable(vinput)
+            ainput = Variable(ainput)
+            label = Variable(label)
+
             audioOptimizer.zero_grad()
             videoOptimizer.zero_grad()
             vfeat = vnetwork.forward(vinput)

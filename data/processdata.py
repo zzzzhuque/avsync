@@ -188,6 +188,7 @@ class lipDataset(Dataset):
             idx1 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))   # randint->[a, b]
             afeat = mfcc[:, idx1*20:(idx1+1)*20]    # slice [,)
             vfeat = frames[idx1*5:(idx1+1)*5, :, :]
+
             #ipdb.set_trace()
             # audio normalize
             afeat = self.normalizeArray(afeat)
@@ -208,6 +209,7 @@ class lipDataset(Dataset):
                 idx2 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))
             afeat = mfcc[:, idx1*20:(idx1+1)*20]
             vfeat = frames[idx2*5:(idx2+1)*5, :, :]
+
             #ipdb.set_trace()
             # audio normalize
             afeat = self.normalizeArray(afeat)

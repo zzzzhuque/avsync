@@ -17,9 +17,9 @@ class config(object):
 
     max_epoch = 1 # 训练次数
 
-    audiolr = 0.1
+    audiolr = 0.01
     audioMomentum = 0.9
-    videolr = 0.1
+    videolr = 0.01
     videoMomentum = 0.9
 
     #lr_decay = 0.95 # 当loss上升，调整lr=lr*lr_decay
