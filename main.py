@@ -25,16 +25,20 @@ class ContrastiveLoss(nn.Module):
         self.margin = margin
 
     def forward(self, videofeat, audiofeat, label):
+        #ipdb.set_trace()
         euclidean_distance = F.pairwise_distance(videofeat, audiofeat, p=2)
-        loss_contrastive = torch.mean(torch.cat(
-                                     ((1-label)*torch.pow(euclidean_distance, 2),
-                                     (label)*torch.pow(torch.clamp(self.margin-euclidean_distance, min=0.0), 2)),
-                                     0
-                                     )
-        )
+        loss_contrastive = torch.DoubleTensor([0])
+        for i in range(opt.batch_size):
+            loss_contrastive += 0.5*(
+                                (1-label[i][0])*torch.pow(euclidean_distance[i], 2)
+                                +
+                                (label[i][0])*torch.pow(torch.clamp(self.margin-euclidean_distance[i], min=0.0), 2)
+                                )
+        loss_contrastive = loss_contrastive / opt.batch_size
         return loss_contrastive
 
 def train(dataroot, isTrain, isTest, isVal, augment=None):
+    #ipdb.set_trace()
     #============================================
     #============    setup visdom    ============
     #============================================
