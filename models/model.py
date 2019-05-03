@@ -5,6 +5,9 @@ class basicNetwork(nn.Module):
     def __init__(self):
         super(basicNetwork, self).__init__()
 
+    def save(self):
+        
+
 
 
 class videoNetwork(basicNetwork):
