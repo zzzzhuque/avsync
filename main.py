@@ -25,7 +25,7 @@ class ContrastiveLoss(nn.Module):
     def forward(self, videofeat, audiofeat, label):
         #ipdb.set_trace()
         euclidean_distance = F.pairwise_distance(videofeat, audiofeat, p=2)
-        loss_contrastive = torch.DoubleTensor([0])
+        loss_contrastive = torch.DoubleTensor([0]).to(opt.device)
         for i in range(opt.batch_size):
             loss_contrastive += 0.5*(
                                 (1-label[i][0])*torch.pow(euclidean_distance[i], 2)
@@ -62,7 +62,8 @@ def train(dataroot):
                       trainData,
                       batch_size=opt.batch_size,
                       num_workers=opt.num_workers,
-                      shuffle=opt.shuffle
+                      shuffle=opt.shuffle,
+                      drop_last=opt.drop_last
     )
 
     #============================================
@@ -75,6 +76,7 @@ def train(dataroot):
     # start training
     for epoch in range(opt.max_epoch):
         for idx, (vinput, ainput, label) in enumerate(trainDataLoader):
+            #ipdb.set_trace()
             vinput = vinput.to(opt.device)
             ainput = ainput.to(opt.device)
             label = label.to(opt.device)
