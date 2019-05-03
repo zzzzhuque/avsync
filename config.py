@@ -8,7 +8,6 @@ class config(object):
 
     #train_data_root = './data/train' # 训练集存放路径
     #test_data_root = './data/test' # 测试集存放路径
-    load_model_path = './checkpoints' # 加载预训练模型，为none则不加载
     save_model_path = './checkpoints' # 保存训练过模型的路径
 
     batch_size = 4
