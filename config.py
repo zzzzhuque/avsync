@@ -20,8 +20,10 @@ class config(object):
 
     max_epoch = 1 # 训练次数
 
+    load_amodel_path = None # 如果要加载模型。要在这里改
     audiolr = 0.001
     audioMomentum = 0.9
+    load_vmodel_path = None
     videolr = 0.001
     videoMomentum = 0.9
 
