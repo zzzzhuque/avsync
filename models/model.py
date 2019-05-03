@@ -6,6 +6,7 @@ class basicNetwork(nn.Module):
         super(basicNetwork, self).__init__()
 
     def save(self, name):
+        # 保存模型参数，体积小，加载快
         torch.save(self.state_dict(), name)
 
     def load(self, path):

@@ -46,8 +46,14 @@ def train(dataroot, isTrain, isTest, isVal, augment=None):
     #============================================
     #=============   load model    ==============
     #============================================
-    anetwork = audioNetwork().to(opt.device)
-    vnetwork = videoNetwork().to(opt.device)
+    anetwork = audioNetwork()
+    vnetwork = videoNetwork()
+    if opt.load_amodel_path:
+        anetwork.load(opt.load_amodel_path)
+    if opt.load_vmodel_path:
+        vnetwork.load(opt.load_vmodel_path)
+    anetwork.to(opt.device)
+    vnetwork.to(opt.device)
 
     #============================================
     #============    load data    ===============
