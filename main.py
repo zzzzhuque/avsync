@@ -85,10 +85,13 @@ def train(dataroot, isTrain, isTest, isVal, augment=None):
             audioOptimizer.step()
             videoOptimizer.step()
 
-        anetwork.save()
-        vnetwork.save()
+            if (idx+1)%opt.print_freq == 0:
+                print('epoch', epoch+1, 'loss', loss)
 
-    
+        anetwork.save(opt.save_model_path+'/anetwork'+str(epoch+1)+'.pth')
+        vnetwork.save(opt.save_model_path+'/vnetwork'+str(epoch+1)+'.pth')
+
+
 
 if __name__ == '__main__':
     fire.Fire() # python main.py train --dataroot='/home/litchi/zhuque/expdata' --isTrain=True --isTest=False --isVal=False

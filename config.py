@@ -9,11 +9,12 @@ class config(object):
     #train_data_root = './data/train' # 训练集存放路径
     #test_data_root = './data/test' # 测试集存放路径
     load_model_path = './checkpoints' # 加载预训练模型，为none则不加载
+    save_model_path = './checkpoints' # 保存训练过模型的路径
 
     batch_size = 4
     num_workers = 4 # 加载数据的线程数
     shuffle = True
-    #print_freq = 20 # 每N个batch打印一次信息
+    print_freq = 20 # 每N个batch打印一次信息
 
     #debug_file = '/tmp/debug' # 如果有这个文件，就debug
 

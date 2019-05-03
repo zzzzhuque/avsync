@@ -5,8 +5,11 @@ class basicNetwork(nn.Module):
     def __init__(self):
         super(basicNetwork, self).__init__()
 
-    def save(self):
-        
+    def save(self, name):
+        torch.save(self.state_dict(), name)
+
+    def load(self, path):
+        self.load_state_dict(torch.load(path))
 
 
 
