@@ -173,6 +173,8 @@ class lipDataset(Dataset):
                     continue
     
     def normalizeArray(self, array):
+        if self.augment != None:
+            
         arraymin, arraymax = array.min(), array.max()   # normalize
         array = (array-arraymin) / (arraymax-arraymin)
         array = (array-0.5)/0.5
@@ -194,7 +196,6 @@ class lipDataset(Dataset):
 
             #ipdb.set_trace()
             # audio normalize
-            afeat = self.normalizeArray(afeat)
             afeat = afeat.unsqueeze(0)
             # video normalize
             vfeat = np.array(vfeat, np.float64)
@@ -215,7 +216,6 @@ class lipDataset(Dataset):
 
             #ipdb.set_trace()
             # audio normalize
-            afeat = self.normalizeArray(afeat)
             afeat = afeat.unsqueeze(0)
             # video normalize
             vfeat = np.array(vfeat, np.float64)
