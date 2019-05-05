@@ -9,6 +9,7 @@ import warnings
 import torch
 import numpy as np
 import torchvision as tv
+import torchvision.transforms.functional as TF
 from torch.utils.data import Dataset, DataLoader
 from python_speech_features import mfcc
 import scipy.io.wavfile as wav
@@ -150,6 +151,11 @@ class lipDataset(Dataset):
         self.isVal = isVal
         self.datapathSet = []
         self.augment = augment
+		transforms = tv.transforms.Compose([
+                		tv.transforms.RandomCrop((111, 111)),
+                		tv.transforms.RandomHorizontalFlip(0.2),
+                		tv.transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0, hue=0)
+		])
         #=====================================================================
         #=========   collect data path depend on status    ===================
         #=====================================================================
@@ -174,7 +180,10 @@ class lipDataset(Dataset):
     
     def normalizeArray(self, array):
         if self.augment != None:
-            
+            array = TF.to_pil_image(img)
+			array = self.transforms(array)
+			array = TF.to_tensor(array).squeeze(0)
+			img = img.numpy() # dtype=float32
         arraymin, arraymax = array.min(), array.max()   # normalize
         array = (array-arraymin) / (arraymax-arraymin)
         array = (array-0.5)/0.5
