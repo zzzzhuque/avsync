@@ -32,16 +32,19 @@ class createDataset(object):
                 self.processMP4(mp4path)
             else:
                if mp4path[-3:] == 'mp4':
-                   cmd1 = 'mkdir -p ' + mp4path[:-4] + ' > /dev/null 2>&1'
-                   os.system(cmd1)
-                   #===========================================
-                   #=======    extract mfcc    ================
-                   #===========================================
-                   self.extractMfcc(mp4path)
-                   #===========================================
-                   #=======    extract frames    ==============
-                   #===========================================
-                   self.extractFrame(mp4path)
+                   if os.path.exists(mp4path[:-4]):
+                       continue
+                   else:
+                       cmd1 = 'mkdir -p ' + mp4path[:-4] + ' > /dev/null 2>&1'
+                       os.system(cmd1)
+                       #===========================================
+                       #=======    extract mfcc    ================
+                       #===========================================
+                       self.extractMfcc(mp4path)
+                       #===========================================
+                       #=======    extract frames    ==============
+                       #===========================================
+                       self.extractFrame(mp4path)
                else:
                    continue
 
@@ -124,7 +127,7 @@ class createDataset(object):
         #===================================================
         #=============    extract lip    ===================
         #===================================================
-        halfplusMouth = int(round(1.5/2.0*math.sqrt(
+        halfplusMouth = int(round(1.15/2.0*math.sqrt(
                     math.pow(points[2][1]-points[0][1], 2) + math.pow(points[2][0]-points[0][0], 2)
         )))
         leftUp = (centerX-halfplusMouth, centerY-halfplusMouth)
