@@ -178,15 +178,16 @@ class lipDataset(Dataset):
                 else:
                     continue
     
-    def normalizeArray(self, array):
+    def normalizeArray(self, array): # uint8,max=127
         if self.augment != None:
             array = TF.to_pil_image(array)
             array = self.transforms(array)
-            array = TF.to_tensor(array).squeeze(0)
+            array = TF.to_tensor(array)
+            array = TF.normalize(array, (0.5,), (0.5,)).squeeze(0)
             array = array.numpy() # dtype=float32
-        arraymin, arraymax = array.min(), array.max()   # normalize
-        array = (array-arraymin) / (arraymax-arraymin)
-        array = (array-0.5)/0.5
+        #arraymin, arraymax = array.min(), array.max()   # normalize
+        #array = (array-arraymin) / (arraymax-arraymin)
+        #array = (array-0.5)/0.5
         #array = (torch.from_numpy(array)).double()
         return array
 
@@ -208,13 +209,14 @@ class lipDataset(Dataset):
             afeat = torch.from_numpy(afeat).unsqueeze(0).double()
             # video normalize
             #vfeat = np.array(vfeat, np.float64)
+            augvfeat = []
             for i in range(vfeat.shape[0]):
-                vfeat[i, :, :] = self.normalizeArray(vfeat[i, :, :])
-            vfeat = torch.from_numpy(vfeat).double()
+                augvfeat.append(self.normalizeArray(vfeat[i, :, :]))
+            augvfeat = torch.DoubleTensor(augvfeat)
             # label
             label = torch.DoubleTensor([label])
             #ipdb.set_trace()
-            return (vfeat, afeat, label)
+            return (augvfeat, afeat, label)
         else:
             idx1 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))
             idx2 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))
@@ -228,13 +230,14 @@ class lipDataset(Dataset):
             afeat = torch.from_numpy(afeat).unsqueeze(0).double()
             # video normalize
             #vfeat = np.array(vfeat, np.float64)
+            augvfeat = []
             for i in range(vfeat.shape[0]):
-                vfeat[i, :, :] = self.normalizeArray(vfeat[i, :, :])
-            vfeat = torch.from_numpy(vfeat).double()
+                augvfeat.append(self.normalizeArray(vfeat[i, :, :]))
+            augvfeat = torch.DoubleTensor(augvfeat)
             # label
             label = torch.DoubleTensor([label]) 
             #ipdb.set_trace()
-            return (vfeat, afeat, label)
+            return (augvfeat, afeat, label)
 
 
     def __len__(self):

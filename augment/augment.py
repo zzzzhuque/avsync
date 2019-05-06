@@ -22,6 +22,7 @@ transforms = tv.transforms.Compose([
 ])
 
 
+'''
 if __name__ == '__main__':
     ipdb.set_trace()
     frames = np.load('./frames.npy')
@@ -41,3 +42,21 @@ if __name__ == '__main__':
     img = img.numpy() # dtype=float32
     #cv2.imshow('new', img)
     cv2.waitKey(0)
+'''
+if __name__ == '__main__':
+   videoCapture = cv2.VideoCapture()
+   videoCapture.open('./YOUNG_00001.mp4')
+
+   fps = videoCapture.get(cv2.CAP_PROP_FPS)
+   frames = videoCapture.get(cv2.CAP_PROP_FRAME_COUNT)
+
+   lips = []
+   for i in range(int(frames)):
+        ret, frame = videoCapture.read()
+        ipdb.set_trace()
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        #=================================================
+        #=============   landmark detect    ==============
+        #=================================================
+        #lipImg = self.landmarkDetect(frame) # size=(120, 120)
+
