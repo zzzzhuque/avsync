@@ -151,10 +151,10 @@ class lipDataset(Dataset):
         self.isVal = isVal
         self.datapathSet = []
         self.augment = augment
-		transforms = tv.transforms.Compose([
-                		tv.transforms.RandomCrop((111, 111)),
-                		tv.transforms.RandomHorizontalFlip(0.2),
-                		tv.transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0, hue=0)
+        self.transforms = tv.transforms.Compose([
+                        tv.transforms.RandomCrop((111, 111)),
+                        tv.transforms.RandomHorizontalFlip(0.2),
+                        tv.transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0, hue=0)
 		])
         #=====================================================================
         #=========   collect data path depend on status    ===================
@@ -180,14 +180,14 @@ class lipDataset(Dataset):
     
     def normalizeArray(self, array):
         if self.augment != None:
-            array = TF.to_pil_image(img)
-			array = self.transforms(array)
-			array = TF.to_tensor(array).squeeze(0)
-			img = img.numpy() # dtype=float32
+            array = TF.to_pil_image(array)
+            array = self.transforms(array)
+            array = TF.to_tensor(array).squeeze(0)
+            array = array.numpy() # dtype=float32
         arraymin, arraymax = array.min(), array.max()   # normalize
         array = (array-arraymin) / (arraymax-arraymin)
         array = (array-0.5)/0.5
-        array = (torch.from_numpy(array)).double()
+        #array = (torch.from_numpy(array)).double()
         return array
 
     def __getitem__(self, idx):
@@ -203,14 +203,14 @@ class lipDataset(Dataset):
             afeat = mfcc[:, idx1*20:(idx1+1)*20]    # slice [,)
             vfeat = frames[idx1*5:(idx1+1)*5, :, :]
 
-            #ipdb.set_trace()
+            ipdb.set_trace()
             # audio normalize
-            afeat = afeat.unsqueeze(0)
+            afeat = torch.from_numpy(afeat).unsqueeze(0).double()
             # video normalize
-            vfeat = np.array(vfeat, np.float64)
+            #vfeat = np.array(vfeat, np.float64)
             for i in range(vfeat.shape[0]):
                 vfeat[i, :, :] = self.normalizeArray(vfeat[i, :, :])
-            vfeat = torch.from_numpy(vfeat)
+            vfeat = torch.from_numpy(vfeat).double()
             # label
             label = torch.DoubleTensor([label])
             #ipdb.set_trace()
@@ -223,14 +223,14 @@ class lipDataset(Dataset):
             afeat = mfcc[:, idx1*20:(idx1+1)*20]
             vfeat = frames[idx2*5:(idx2+1)*5, :, :]
 
-            #ipdb.set_trace()
+            ipdb.set_trace()
             # audio normalize
-            afeat = afeat.unsqueeze(0)
+            afeat = torch.from_numpy(afeat).unsqueeze(0).double()
             # video normalize
-            vfeat = np.array(vfeat, np.float64)
+            #vfeat = np.array(vfeat, np.float64)
             for i in range(vfeat.shape[0]):
                 vfeat[i, :, :] = self.normalizeArray(vfeat[i, :, :])
-            vfeat = torch.from_numpy(vfeat)
+            vfeat = torch.from_numpy(vfeat).double()
             # label
             label = torch.DoubleTensor([label]) 
             #ipdb.set_trace()
@@ -246,10 +246,10 @@ class lipDataset(Dataset):
 
 
 if __name__ == '__main__':
-    dataset = createDataset()
-    dataset.processMP4('/home/litchi/zhuque/lipread_mp4')
-    #lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True)
-    #lippath[5]
+    #dataset = createDataset()
+    #dataset.processMP4('/home/litchi/zhuque/lipread_mp4')
+    lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True, True)
+    lippath[5]
     #trainloader = DataLoader(lippath, batch_size=2, num_workers=4, shuffle=True)
     #for (vfeat, afeat, label) in trainloader:
     #    ipdb.set_trace()

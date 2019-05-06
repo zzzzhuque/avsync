@@ -23,11 +23,11 @@ transforms = tv.transforms.Compose([
 
 
 if __name__ == '__main__':
-    #ipdb.set_trace()
+    ipdb.set_trace()
     frames = np.load('./frames.npy')
     
     img = frames[0]
-    cv2.imshow('old', img)
+    #cv2.imshow('old', img)
     
     #augimg = cv2.flip(img, 1) if random.random() > 0.1 else img
     #cv2.imshow('new', augimg)
@@ -39,5 +39,5 @@ if __name__ == '__main__':
     img = transforms(img)
     img = TF.to_tensor(img).squeeze(0)
     img = img.numpy() # dtype=float32
-    cv2.imshow('new', img)
+    #cv2.imshow('new', img)
     cv2.waitKey(0)

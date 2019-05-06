@@ -10,7 +10,7 @@ class config(object):
     #test_data_root = './data/test' # 测试集存放路径
     save_model_path = './checkpoints' # 保存训练过模型的路径
 
-    batch_size = 64
+    batch_size = 256
     num_workers = 4 # 加载数据的线程数
     shuffle = True
     drop_last = True # 如果数据集大小不能被batch_size整除，设置为Ture则删除那个不完整的batch
@@ -19,10 +19,10 @@ class config(object):
 
     #debug_file = '/tmp/debug' # 如果有这个文件，就debug
 
-    max_epoch = 3 # 训练次数
+    max_epoch = 20 # 训练次数
 
     load_amodel_path = None # 如果要加载模型。要在这里改
-    audiolr = 0.001
+    audiolr = 0.001 # 1e-2  1e-4
     audioMomentum = 0.9
     load_vmodel_path = None
     videolr = 0.001

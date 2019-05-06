@@ -87,7 +87,7 @@ def train(dataroot):
             afeat = anetwork.forward(ainput)
             #ipdb.set_trace()
             loss = criterion.forward(vfeat, afeat, label)
-            print('loss: ', loss)
+            #print('loss: ', loss)
             loss.backward()
             audioOptimizer.step()
             videoOptimizer.step()
