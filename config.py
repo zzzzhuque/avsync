@@ -3,6 +3,7 @@ import torch
 
 class config(object):
     env = 'default' # visdom的环境
+    augment = True # 是否做图像数据增强
     #model1 = 'audioNetwork'
     #model2 = 'videoNetwork'
 
@@ -10,7 +11,7 @@ class config(object):
     #test_data_root = './data/test' # 测试集存放路径
     save_model_path = './checkpoints' # 保存训练过模型的路径
 
-    batch_size = 256
+    batch_size = 128
     num_workers = 4 # 加载数据的线程数
     shuffle = True
     drop_last = True # 如果数据集大小不能被batch_size整除，设置为Ture则删除那个不完整的batch

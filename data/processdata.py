@@ -204,7 +204,7 @@ class lipDataset(Dataset):
             afeat = mfcc[:, idx1*20:(idx1+1)*20]    # slice [,)
             vfeat = frames[idx1*5:(idx1+1)*5, :, :]
 
-            ipdb.set_trace()
+            #ipdb.set_trace()
             # audio normalize
             afeat = torch.from_numpy(afeat).unsqueeze(0).double()
             # video normalize
@@ -225,7 +225,7 @@ class lipDataset(Dataset):
             afeat = mfcc[:, idx1*20:(idx1+1)*20]
             vfeat = frames[idx2*5:(idx2+1)*5, :, :]
 
-            ipdb.set_trace()
+            #ipdb.set_trace()
             # audio normalize
             afeat = torch.from_numpy(afeat).unsqueeze(0).double()
             # video normalize

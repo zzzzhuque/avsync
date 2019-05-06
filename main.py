@@ -57,7 +57,7 @@ def train(dataroot):
     #============================================
     #============    load data    ===============
     #============================================
-    trainData = lipDataset(dataroot, True, False, False, None)
+    trainData = lipDataset(dataroot, True, False, False, opt.augment)
     trainDataLoader = DataLoader(
                       trainData,
                       batch_size=opt.batch_size,
@@ -87,13 +87,13 @@ def train(dataroot):
             afeat = anetwork.forward(ainput)
             #ipdb.set_trace()
             loss = criterion.forward(vfeat, afeat, label)
-            #print('loss: ', loss)
+            print('loss: ', loss)
             loss.backward()
             audioOptimizer.step()
             videoOptimizer.step()
 
             if (idx+1)%opt.print_freq == 0:
-                print('epoch:', epoch+1, '    loss:', loss)
+                print('---epoch---:', epoch+1, '    loss:', loss)
 
         anetwork.save(opt.save_model_path+'/anetwork'+str(epoch+1)+'.pth')
         vnetwork.save(opt.save_model_path+'/vnetwork'+str(epoch+1)+'.pth')
