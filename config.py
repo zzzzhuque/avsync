@@ -2,7 +2,8 @@
 import torch
 
 class config(object):
-    env = 'default' # visdom的环境
+    trainenv = 'train' # visdom的环境
+    valenv = 'val'
     augment = True # 是否做图像数据增强
     #model1 = 'audioNetwork'
     #model2 = 'videoNetwork'

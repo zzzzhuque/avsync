@@ -11,6 +11,7 @@ from config import opt
 from models.model import videoNetwork, audioNetwork
 from utils.Visualizer import Visualizer
 from data.processdata import lipDataset
+import visdom
 
 
 class ContrastiveLoss(nn.Module):
@@ -41,6 +42,7 @@ def train(dataroot):
     #============    setup visdom    ============
     #============================================
     #vis = Visualizer('avsync')  # opt.env
+    vis = visdom.Visdom(env='train')
 
     #============================================
     #=============   load model    ==============
@@ -58,7 +60,7 @@ def train(dataroot):
     #============    load data    ===============
     #============================================
     trainData = lipDataset(dataroot, True, False, False, opt.augment)
-    #ipdb.set_trace() len(trainData)
+    #ipdb.set_trace() #len(trainData)
     trainDataLoader = DataLoader(
                       trainData,
                       batch_size=opt.batch_size,
@@ -88,19 +90,31 @@ def train(dataroot):
             afeat = anetwork.forward(ainput)
             #ipdb.set_trace()
             loss = criterion.forward(vfeat, afeat, label)
+            idx = torch.DoubleTensor([idx])
+            vis.line(X=idx, Y=loss, win='train', update='append', opts={'title':'train_loss'})
             print('loss: ', loss)
             loss.backward()
             audioOptimizer.step()
             videoOptimizer.step()
 
-            if (idx+1)%opt.print_freq == 0:
-                print('---epoch---:', epoch+1, '    loss:', loss)
+            #if (idx+1)%opt.print_freq == 0:
+            #    print('---epoch---:', epoch+1, '    loss:', loss)
+
 
         anetwork.save(opt.save_model_path+'/anetwork'+str(epoch+1)+'.pth')
         vnetwork.save(opt.save_model_path+'/vnetwork'+str(epoch+1)+'.pth')
 
+
+def vis():
+    import visdom
+    vis = visdom.Visdom(env='sin')
+    x = torch.arange(1, 30, 0.01)
+    y = torch.sin(x)
+    vis.line(X=x, Y=y, win='sinx', opts={'title':'y=sin(x)'})
+
 def val():
     #ipdb.set_trace()
+    #vis = Visualizer(opt.valenv)
     val = validation()
     #==============================================
     #===========   asyncv    ======================
@@ -120,8 +134,9 @@ class validation():
         self.vnetwork = videoNetwork().double().to(opt.device)
         #self.anetwork.load('./checkpoints/anetwork20.pth')
         #self.vnetwork.load('./checkpoints/vnetwork20.pth')
-
+    
     def calcL2dist(self, mfcc, astart, astep, alength, vinput):
+        vis = visdom.Visdom(env='val')
         vfeat = self.vnetwork.forward(vinput)
         for i in range(astart, mfcc.shape[1]-alength, astep):
             #ipdb.set_trace()
@@ -129,6 +144,8 @@ class validation():
             afeat = self.anetwork.forward(ainput)
             L2dist = F.pairwise_distance(vfeat, afeat, p=2)
             print(i, L2dist)
+            i=torch.DoubleTensor([i])
+            vis.line(X=i, Y=L2dist, win='loss', update='append', opts={'title':'val_loss'})
 
 		
 
