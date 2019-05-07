@@ -58,6 +58,7 @@ def train(dataroot):
     #============    load data    ===============
     #============================================
     trainData = lipDataset(dataroot, True, False, False, opt.augment)
+    #ipdb.set_trace() len(trainData)
     trainDataLoader = DataLoader(
                       trainData,
                       batch_size=opt.batch_size,
@@ -98,7 +99,23 @@ def train(dataroot):
         anetwork.save(opt.save_model_path+'/anetwork'+str(epoch+1)+'.pth')
         vnetwork.save(opt.save_model_path+'/vnetwork'+str(epoch+1)+'.pth')
 
+def val():
+    anetwork = audioNetwork().to(opt.devive)
+    vnetwork = videoNetwork().to(opt.device)
+    anetwork.load('./checkpoints/anetwork20.pth')
+    vnetwork.load('./checkpoints/vnetwork20.pth')
+    #==============================================
+    #===========   asyncv    ======================
+    #==============================================
+    mfcc = np.load('/home/litchi/zhuque/omg/data/val/asyncv/mfcc.npy')
+    frames = np.load('/home/litchi/zhuque/omg/data/val/asyncv/frames.npy')
+    astart = 0
+    astep = 4
+    vinput = torch.DoubleTensor(frames[10:15]).unsqueeze(0).to(opt.device)
+
 
 
 if __name__ == '__main__':
-    fire.Fire() # python main.py train --dataroot='/home/litchi/zhuque/expdata'
+    fire.Fire()
+    # python main.py train --dataroot='/home/litchi/zhuque/expdata'
+    # python main.py val

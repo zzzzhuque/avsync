@@ -1,0 +1,5 @@
+all from directory /val
+asncv: ABUSE_00001
+aleadv: GAMES_00001
+auncorrelatev: MORNING_00001-mfcc.npy
+               PATIENTS_00001-frames.npy
