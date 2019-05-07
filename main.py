@@ -18,7 +18,7 @@ class ContrastiveLoss(nn.Module):
     Contrastive loss function.
     Based on: http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
     """
-    def __init__(self, margin=2.0):
+    def __init__(self, margin=20.0):
         super(ContrastiveLoss, self).__init__()
         self.margin = margin
 
@@ -100,19 +100,37 @@ def train(dataroot):
         vnetwork.save(opt.save_model_path+'/vnetwork'+str(epoch+1)+'.pth')
 
 def val():
-    anetwork = audioNetwork().to(opt.devive)
-    vnetwork = videoNetwork().to(opt.device)
-    anetwork.load('./checkpoints/anetwork20.pth')
-    vnetwork.load('./checkpoints/vnetwork20.pth')
+    #ipdb.set_trace()
+    val = validation()
     #==============================================
     #===========   asyncv    ======================
     #==============================================
     mfcc = np.load('/home/litchi/zhuque/omg/data/val/asyncv/mfcc.npy')
     frames = np.load('/home/litchi/zhuque/omg/data/val/asyncv/frames.npy')
+
     astart = 0
+    alength = 20
     astep = 4
     vinput = torch.DoubleTensor(frames[10:15]).unsqueeze(0).to(opt.device)
+    val.calcL2dist(mfcc, astart, astep, alength, vinput)
 
+class validation():
+    def __init__(self):
+        self.anetwork = audioNetwork().double().to(opt.device)
+        self.vnetwork = videoNetwork().double().to(opt.device)
+        #self.anetwork.load('./checkpoints/anetwork20.pth')
+        #self.vnetwork.load('./checkpoints/vnetwork20.pth')
+
+    def calcL2dist(self, mfcc, astart, astep, alength, vinput):
+        vfeat = self.vnetwork.forward(vinput)
+        for i in range(astart, mfcc.shape[1]-alength, astep):
+            #ipdb.set_trace()
+            ainput = torch.DoubleTensor(mfcc[:, i:i+alength]).unsqueeze(0).unsqueeze(0).to(opt.device)
+            afeat = self.anetwork.forward(ainput)
+            L2dist = F.pairwise_distance(vfeat, afeat, p=2)
+            print(i, L2dist)
+
+		
 
 
 if __name__ == '__main__':
