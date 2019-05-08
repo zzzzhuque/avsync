@@ -3,6 +3,7 @@ import torch
 
 class config(object):
     trainenv = 'train' # visdom的环境
+    trainwin = 'loss'
     valenv = 'val'
     augment = True # 是否做图像数据增强
     #model1 = 'audioNetwork'
@@ -24,11 +25,11 @@ class config(object):
     max_epoch = 20 # 训练次数
 
     load_amodel_path = None # 如果要加载模型。要在这里改
-    audiolr = 0.001 # 1e-2  1e-4
-    audioMomentum = 0.9
+    audiolr = 0.0005 # 1e-2  1e-4
+    audioMomentum = 0.95
     load_vmodel_path = None
-    videolr = 0.001
-    videoMomentum = 0.9
+    videolr = 0.0005
+    videoMomentum = 0.95
 
     use_gpu = True
     device = torch.device('cuda') if use_gpu else torch.device('cpu')

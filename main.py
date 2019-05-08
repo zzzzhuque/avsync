@@ -11,7 +11,6 @@ from config import opt
 from models.model import videoNetwork, audioNetwork
 from utils.Visualizer import Visualizer
 from data.processdata import lipDataset
-import visdom
 
 
 class ContrastiveLoss(nn.Module):
@@ -19,7 +18,7 @@ class ContrastiveLoss(nn.Module):
     Contrastive loss function.
     Based on: http://yann.lecun.com/exdb/publis/pdf/hadsell-chopra-lecun-06.pdf
     """
-    def __init__(self, margin=20.0):
+    def __init__(self, margin=15.0):
         super(ContrastiveLoss, self).__init__()
         self.margin = margin
 
@@ -41,8 +40,8 @@ def train(dataroot):
     #============================================
     #============    setup visdom    ============
     #============================================
-    #vis = Visualizer('avsync')  # opt.env
-    vis = visdom.Visdom(env='train')
+    vis = Visualizer(opt.trainenv)  # opt.env
+    #vis = visdom.Visdom(env='train')
 
     #============================================
     #=============   load model    ==============
@@ -90,8 +89,7 @@ def train(dataroot):
             afeat = anetwork.forward(ainput)
             #ipdb.set_trace()
             loss = criterion.forward(vfeat, afeat, label)
-            idx = torch.DoubleTensor([idx])
-            vis.line(X=idx, Y=loss, win='train', update='append', opts={'title':'train_loss'})
+            vis.plot(idx, loss, opt.trainwin)
             print('loss: ', loss)
             loss.backward()
             audioOptimizer.step()

@@ -1,5 +1,6 @@
 #coding=utf-8
 import visdom
+import torch
 import numpy as np
 import time
 
@@ -7,8 +8,8 @@ class Visualizer(object):
     def __init__(self, env='default', **kwargs):
         self.vis = visdom.Visdom(env=env, **kwargs)
         # 横坐标的1,2,3...表示画的第几个loss
-        self.index = {}
-        self.log_text = ''
+        #self.index = {}
+        #self.log_text = ''
 
     def reinit(self, env='default', **kwargs):
         self.vis = visdom.Visdom(env=env, **kwargs)
@@ -25,15 +26,15 @@ class Visualizer(object):
         for k, v in d.iteritems():
             self.img(k, v)
 
-    def plot(self, name, y, **kwargs):
-        x = self.index.get(name, 0) # 指定键不存在时返回0
-        self.vis.line(Y=np.array([y]), X=np.array([x]),
-                      win=unicode(name),
-                      opts=dict(title=name),
-                      update=None if x==0 else 'append',
-                      **kwargs
+    def plot(self, x, y, win):
+        x = torch.DoubleTensor([x])
+        self.vis.line(X=x,
+                      Y=y,
+                      win=unicode(win),
+                      opts=dict(title=win),
+                      update=None if x==0 else 'append'
                       )
-        self.index[name] = x+1
+        #self.index[name] = x1
 
     def img(self, name, img_, **kwargs):
         self.vis.images(img_.cpu().numpy(),
