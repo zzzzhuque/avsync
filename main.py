@@ -28,9 +28,9 @@ class ContrastiveLoss(nn.Module):
         loss_contrastive = torch.DoubleTensor([0]).to(opt.device)
         for i in range(opt.batch_size):
             loss_contrastive += 0.5*(
-                                (1-label[i][0])*torch.pow(euclidean_distance[i], 2)
+                                (label[i][0])*torch.pow(euclidean_distance[i], 2)
                                 +
-                                (label[i][0])*torch.pow(torch.clamp(self.margin-euclidean_distance[i], min=0.0), 2)
+                                (1-label[i][0])*torch.pow(torch.clamp(self.margin-euclidean_distance[i], min=0.0), 2)
                                 )
         loss_contrastive = loss_contrastive / opt.batch_size
         return loss_contrastive

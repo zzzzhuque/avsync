@@ -14,6 +14,17 @@ from torch.utils.data import Dataset, DataLoader
 from python_speech_features import mfcc
 import scipy.io.wavfile as wav
 
+class checkSample(object):
+    def __init__(self, wavpath):
+        (self.sr, self.wavfile) = wav.read(wavpath)
+
+    def checkMfcc(self):
+        ipdb.set_trace()
+        mfcc_feat = mfcc(signal=self.wavfile, samplerate=self.sr, winfunc=np.hamming)
+        mfcc_feat = zip(*mfcc(signal=self.wavfile, samplerate=self.sr, winfunc=np.hamming))
+        return
+        
+
 #==================================================================================
 #=================    extract mfcc&frames and save in mfcc   ======================
 #==================================================================================
@@ -51,13 +62,15 @@ class createDataset(object):
 
     def extractMfcc(self, mp4path):
         audiopath = mp4path[:-4] + '.wav'
-        cmd1 = "ffmpeg -y -i %s -async 1 -ac 1 -vn -acodec pcm_s16le -ar 16000 %s > /dev/null 2>&1" % (mp4path, audiopath)
+        cmd1 = "ffmpeg -y -i %s -af aresample=sync=1 -ac 1 -vn -acodec pcm_s16le -ar 16000 %s > /dev/null 2>&1" % (mp4path, audiopath)
         os.system(cmd1)
         (sr, wavfile) = wav.read(audiopath)
-        mfcc_feat = mfcc(wavfile, sr)
+        if wavfile.shape[0] < 19790:
+            return
+        mfcc_feat = mfcc(wavfile, sr, winfunc=np.hamming)
         mfcc_feat = mfcc_feat.transpose()
         #ipdb.set_trace()
-        np.save(mp4path[:-4] + '/mfcc.npy', mfcc_feat)
+        np.save(mp4path[:-4] + '/mfcc.npy', mfcc_feat[:, :19780])
 
 
     def extractFrame(self, mp4path):
@@ -192,14 +205,14 @@ class lipDataset(Dataset):
         return array
 
     def __getitem__(self, idx):
-        # 1-match, 0-not match
-        label = 1 if random.random() >= 0.5 else 0  # random->[0, 1)
+        # True-match, False-not match
+        ispair = True if random.random() >= 0.5 else False  # random->[0, 1)
         datadir = self.datapathSet[idx]
         mfcc = np.load(datadir+'/mfcc.npy')
         frames = np.load(datadir+'/frames.npy')
 
         #ipdb.set_trace()
-        if label:
+        if ispair:
             idx1 = random.randint(0, min(mfcc.shape[1]/20-1, frames.shape[0]/5-1))   # randint->[a, b]
             afeat = mfcc[:, idx1*20:(idx1+1)*20]    # slice [,)
             vfeat = frames[idx1*5:(idx1+1)*5, :, :]
@@ -214,7 +227,7 @@ class lipDataset(Dataset):
                 augvfeat.append(self.normalizeArray(vfeat[i, :, :]))
             augvfeat = torch.DoubleTensor(augvfeat)
             # label
-            label = torch.DoubleTensor([label])
+            label = torch.DoubleTensor([1])
             #ipdb.set_trace()
             return (augvfeat, afeat, label)
         else:
@@ -235,7 +248,7 @@ class lipDataset(Dataset):
                 augvfeat.append(self.normalizeArray(vfeat[i, :, :]))
             augvfeat = torch.DoubleTensor(augvfeat)
             # label
-            label = torch.DoubleTensor([label]) 
+            label = torch.DoubleTensor([0]) 
             #ipdb.set_trace()
             return (augvfeat, afeat, label)
 
@@ -249,11 +262,22 @@ class lipDataset(Dataset):
 
 
 if __name__ == '__main__':
+    #==============================================
+    #===========    generate npy file   ===========
+    #==============================================
     dataset = createDataset()
     dataset.processMP4('/home/litchi/zhuque/lipread_mp4')
+    #==============================================
+    #=======   check __getitem__ func   ===========
+    #==============================================
     #lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True, True)
     #lippath[5]
     #trainloader = DataLoader(lippath, batch_size=2, num_workers=4, shuffle=True)
     #for (vfeat, afeat, label) in trainloader:
     #    ipdb.set_trace()
     #    print(label)
+    #==============================================
+    #===========     check sample  ================
+    #==============================================
+    #validation = checkSample('/home/litchi/zhuque/expdata/ABUSE/test/ABUSE_00001.wav')
+    #validation.checkMfcc()
