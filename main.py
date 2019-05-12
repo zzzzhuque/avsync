@@ -89,14 +89,15 @@ def train(dataroot):
             afeat = anetwork.forward(ainput)
             #ipdb.set_trace()
             loss = criterion.forward(vfeat, afeat, label)
-            vis.plot(idx, loss, opt.trainwin)
+            #vis.plot(idx, loss, opt.trainwin)
             print('loss: ', loss)
             loss.backward()
             audioOptimizer.step()
             videoOptimizer.step()
 
-            #if (idx+1)%opt.print_freq == 0:
-            #    print('---epoch---:', epoch+1, '    loss:', loss)
+            if (idx+1)%opt.print_freq == 0:
+                print('---epoch---:', epoch+1, '    loss:', loss)
+                vis.plot(idx, loss, opt.trainwin)
 
 
         anetwork.save(opt.save_model_path+'/anetwork'+str(epoch+1)+'.pth')
