@@ -1,4 +1,5 @@
 # coding=utf-8
+import visdom
 import fire
 import ipdb
 import torch
@@ -111,31 +112,58 @@ def vis():
     y = torch.sin(x)
     vis.line(X=x, Y=y, win='sinx', opts={'title':'y=sin(x)'})
 
-def val():
+def val(dataroot):
     #ipdb.set_trace()
     #vis = Visualizer(opt.valenv)
-    val = validation()
-    #==============================================
-    #===========   asyncv    ======================
-    #==============================================
-    mfcc = np.load('/home/litchi/zhuque/omg/data/val/asyncv/mfcc.npy')
-    frames = np.load('/home/litchi/zhuque/omg/data/val/asyncv/frames.npy')
+    #astart = 0
+    #alength = 20
+    #astep = 4
+    #val.calcL2dist(mfcc, astart, astep, alength, vinput)
 
-    astart = 0
-    alength = 20
-    astep = 4
-    vinput = torch.DoubleTensor(frames[10:15]).unsqueeze(0).to(opt.device)
-    val.calcL2dist(mfcc, astart, astep, alength, vinput)
+	#============================================
+    #============    load data    ===============
+    #============================================
+    valData = lipDataset(dataroot, False, False, True, opt.augment)
+    valDataLoader = DataLoader(
+                      valData,
+                      batch_size=opt.batch_size,
+                      num_workers=opt.num_workers,
+                      shuffle=opt.shuffle,
+                      drop_last=opt.drop_last
+    )
+	#==============================================
+	#=============    load model    ===============
+	#==============================================
+    anetwork = audioNetwork().double().to(opt.device)
+    vnetwork = videoNetwork().double().to(opt.device)
+    anetwork.load('./checkpoints/anetwork20.pth')
+    vnetwork.load('./checkpoints/vnetwork20.pth')
+    for idx, (vinput, ainput, label) in enumerate(valDataLoader):
+        vinput = vinput.to(opt.device)
+        ainput = ainput.to(opt.device)
+        #label = label.to(opt.device)
+        
+        vfeat = vnetwork.forward(vinput)
+        afeat = anetwork.forward(ainput)
+        #ipdb.set_trace()
+        L2dist = F.pairwise_distance(vfeat, afeat, p=2)
+        predictPair = zip(L2dist, label)
+        for pair in predictPair:
+            print(pair)
+        break
+		
+		
+		
 
 class validation():
     def __init__(self):
         self.anetwork = audioNetwork().double().to(opt.device)
         self.vnetwork = videoNetwork().double().to(opt.device)
-        #self.anetwork.load('./checkpoints/anetwork20.pth')
-        #self.vnetwork.load('./checkpoints/vnetwork20.pth')
+        self.anetwork.load('./checkpoints/anetwork20.pth')
+        self.vnetwork.load('./checkpoints/vnetwork20.pth')
     
     def calcL2dist(self, mfcc, astart, astep, alength, vinput):
-        vis = visdom.Visdom(env='val')
+        #vis = visdom.Visdom(env='val')
         vfeat = self.vnetwork.forward(vinput)
         for i in range(astart, mfcc.shape[1]-alength, astep):
             #ipdb.set_trace()
@@ -152,4 +180,4 @@ class validation():
 if __name__ == '__main__':
     fire.Fire()
     # python main.py train --dataroot='/home/litchi/zhuque/expdata'
-    # python main.py val
+    # python main.py val --dataroot='/home/litchi/zhuque/expdata'

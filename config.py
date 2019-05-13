@@ -24,10 +24,10 @@ class config(object):
 
     max_epoch = 20 # 训练次数
 
-    load_amodel_path = '/home/litchi/zhuque/omg/checkpoints/anetwork6.pth' # 如果要加载模型。要在这里改
+    load_amodel_path = None #'/home/litchi/zhuque/omg/checkpoints/anetwork6.pth' # 如果要加载模型。要在这里改
     audiolr = 0.001 # 1e-2  1e-4
     audioMomentum = 0.9
-    load_vmodel_path = '/home/litchi/zhuque/omg/checkpoints/vnetwork6.pth'
+    load_vmodel_path = None #'/home/litchi/zhuque/omg/checkpoints/vnetwork6.pth'
     videolr = 0.001
     videoMomentum = 0.9
 
