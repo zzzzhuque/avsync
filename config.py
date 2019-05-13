@@ -4,7 +4,10 @@ import torch
 class config(object):
     trainenv = 'train' # visdom的环境
     trainwin = 'loss'
+
     valenv = 'val'
+    valwin = 'L2dist'
+
     augment = True # 是否做图像数据增强
     #model1 = 'audioNetwork'
     #model2 = 'videoNetwork'

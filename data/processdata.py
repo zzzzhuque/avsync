@@ -198,10 +198,6 @@ class lipDataset(Dataset):
             array = TF.to_tensor(array)
             array = TF.normalize(array, (0.5,), (0.5,)).squeeze(0)
             array = array.numpy() # dtype=float32
-        #arraymin, arraymax = array.min(), array.max()   # normalize
-        #array = (array-arraymin) / (arraymax-arraymin)
-        #array = (array-0.5)/0.5
-        #array = (torch.from_numpy(array)).double()
         return array
 
     def __getitem__(self, idx):

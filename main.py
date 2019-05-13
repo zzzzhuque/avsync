@@ -12,6 +12,8 @@ from config import opt
 from models.model import videoNetwork, audioNetwork
 from utils.Visualizer import Visualizer
 from data.processdata import lipDataset
+import torchvision as tv
+import torchvision.transforms.functional as TF
 
 
 class ContrastiveLoss(nn.Module):
@@ -113,13 +115,7 @@ def vis():
     vis.line(X=x, Y=y, win='sinx', opts={'title':'y=sin(x)'})
 
 def val(dataroot):
-    #ipdb.set_trace()
-    #vis = Visualizer(opt.valenv)
-    #astart = 0
-    #alength = 20
-    #astep = 4
-    #val.calcL2dist(mfcc, astart, astep, alength, vinput)
-
+	#ipdb.set_trace()
 	#============================================
     #============    load data    ===============
     #============================================
@@ -151,28 +147,63 @@ def val(dataroot):
         for pair in predictPair:
             print(pair)
         break
-		
-		
-		
+	
+def drawdist():
+    ipdb.set_trace()
+    mfcc = np.load('/home/litchi/zhuque/omg/data/val/asyncv/mfcc.npy')
+    frames = np.load('/home/litchi/zhuque/omg/data/val/asyncv/frames.npy')
+    frames = frames[10:15, :, :]
+
+    val = validation(mfcc, frames)
+    astart = 0
+    alength = 20
+    astep = 4
+    val.calcL2dist(astart, astep, alength)
 
 class validation():
-    def __init__(self):
+    def __init__(self, mfcc, frames):
+        self.mfcc = mfcc
+        self.frames = frames
+
+        self.vis = Visualizer(opt.valenv)
         self.anetwork = audioNetwork().double().to(opt.device)
         self.vnetwork = videoNetwork().double().to(opt.device)
         self.anetwork.load('./checkpoints/anetwork20.pth')
         self.vnetwork.load('./checkpoints/vnetwork20.pth')
-    
-    def calcL2dist(self, mfcc, astart, astep, alength, vinput):
-        #vis = visdom.Visdom(env='val')
-        vfeat = self.vnetwork.forward(vinput)
+        
+        self.transforms = tv.transforms.Compose([
+                        tv.transforms.RandomCrop((111, 111)),
+                        tv.transforms.RandomHorizontalFlip(0.2),
+                        tv.transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0, hue=0)
+        ])
+
+        self.augvfeat = []
+        for i in range(self.frames.shape[0]):
+            self.augvfeat.append(self.normalizeArray(self.frames[i, :, :]))
+        self.augvfeat = torch.DoubleTensor(self.augvfeat).unsqueeze(0).to(opt.device)
+
+    def normalizeArray(self, array):
+        array = TF.to_pil_image(array)
+        array = self.transforms(array)
+        array = TF.to_tensor(array)
+        array = TF.normalize(array, (0.5,), (0.5,)).squeeze(0)
+        array = array.numpy()
+        return array
+
+    def calcL2dist(self, astart, astep, alength):
+		#=====================================================
+		#===========   calculate and draw   ==================
+		#=====================================================
+        vfeat = self.vnetwork.forward(self.augvfeat)
+        index = 1
         for i in range(astart, mfcc.shape[1]-alength, astep):
             #ipdb.set_trace()
             ainput = torch.DoubleTensor(mfcc[:, i:i+alength]).unsqueeze(0).unsqueeze(0).to(opt.device)
             afeat = self.anetwork.forward(ainput)
             L2dist = F.pairwise_distance(vfeat, afeat, p=2)
-            print(i, L2dist)
-            i=torch.DoubleTensor([i])
-            vis.line(X=i, Y=L2dist, win='loss', update='append', opts={'title':'val_loss'})
+            print(index, L2dist)
+            vis.line(X=index, Y=L2dist, win=opt.valwin)
+            index = index+1
 
 		
 
@@ -181,3 +212,4 @@ if __name__ == '__main__':
     fire.Fire()
     # python main.py train --dataroot='/home/litchi/zhuque/expdata'
     # python main.py val --dataroot='/home/litchi/zhuque/expdata'
+    # python main.py drawdist
