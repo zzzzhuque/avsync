@@ -105,7 +105,7 @@ class audioNetwork(basicNetwork):
             nn.MaxPool2d(kernel_size=3, stride=2, padding=0),
             # 输出是512*5*4
 
-            nn.Conv2d(256, 512, kernel_size=(5,4), padding=0),
+            nn.Conv2d(in_channels=256, out_channels=512, kernel_size=(5,4), padding=0),
             nn.BatchNorm2d(512),
             nn.ReLU()
             # 输出是512*1*1
