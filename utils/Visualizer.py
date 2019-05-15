@@ -27,7 +27,8 @@ class Visualizer(object):
             self.img(k, v)
 
     def plot(self, x, y, win):
-        x = torch.DoubleTensor([x])
+        x = torch.IntTensor([x])
+        y = torch.DoubleTensor([y])
         self.vis.line(X=x,
                       Y=y,
                       win=unicode(win),

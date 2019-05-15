@@ -147,29 +147,33 @@ def val(dataroot):
         for pair in predictPair:
             print(pair)
         break
-	
+
+
 def drawdist():
-    ipdb.set_trace()
-    mfcc = np.load('/home/litchi/zhuque/omg/data/val/asyncv/mfcc.npy')
-    frames = np.load('/home/litchi/zhuque/omg/data/val/asyncv/frames.npy')
-    frames = frames[10:15, :, :]
+    #ipdb.set_trace()
+    mfcc = np.load('/home/litchi/zhuque/omg/data/val/auncorrelatev/mfcc.npy')
+    frames = np.load('/home/litchi/zhuque/omg/data/val/auncorrelatev/frames.npy')
+    frames = frames[23:28, :, :]
 
     val = validation(mfcc, frames)
     astart = 0
     alength = 20
     astep = 4
     val.calcL2dist(astart, astep, alength)
+    val.free()
 
 class validation():
     def __init__(self, mfcc, frames):
         self.mfcc = mfcc
         self.frames = frames
 
-        self.vis = Visualizer(opt.valenv)
+        self.visual = Visualizer(opt.valenv)
         self.anetwork = audioNetwork().double().to(opt.device)
         self.vnetwork = videoNetwork().double().to(opt.device)
         self.anetwork.load('./checkpoints/anetwork20.pth')
         self.vnetwork.load('./checkpoints/vnetwork20.pth')
+        self.anetwork.eval()
+        self.vnetwork.eval()
         
         self.transforms = tv.transforms.Compose([
                         tv.transforms.RandomCrop((111, 111)),
@@ -181,6 +185,10 @@ class validation():
         for i in range(self.frames.shape[0]):
             self.augvfeat.append(self.normalizeArray(self.frames[i, :, :]))
         self.augvfeat = torch.DoubleTensor(self.augvfeat).unsqueeze(0).to(opt.device)
+
+    def free(self):
+        self.anetwork.train()
+        self.vnetwork.train()
 
     def normalizeArray(self, array):
         array = TF.to_pil_image(array)
@@ -194,15 +202,16 @@ class validation():
 		#=====================================================
 		#===========   calculate and draw   ==================
 		#=====================================================
+        #ipdb.set_trace()
         vfeat = self.vnetwork.forward(self.augvfeat)
         index = 1
-        for i in range(astart, mfcc.shape[1]-alength, astep):
+        for i in range(astart, self.mfcc.shape[1]-alength, astep):
             #ipdb.set_trace()
-            ainput = torch.DoubleTensor(mfcc[:, i:i+alength]).unsqueeze(0).unsqueeze(0).to(opt.device)
+            ainput = torch.DoubleTensor(self.mfcc[:, i:i+alength]).unsqueeze(0).unsqueeze(0).to(opt.device)
             afeat = self.anetwork.forward(ainput)
             L2dist = F.pairwise_distance(vfeat, afeat, p=2)
             print(index, L2dist)
-            vis.line(X=index, Y=L2dist, win=opt.valwin)
+            self.visual.plot(index, L2dist, opt.valwin)
             index = index+1
 
 		
