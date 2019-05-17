@@ -2067,3 +2067,68 @@ INFO:root:Opened visdom socket from ip: 127.0.0.1
 INFO:tornado.access:200 POST /env/val (127.0.0.1) 0.27ms
 INFO:tornado.access:101 GET /vis_socket (127.0.0.1) 0.22ms
 INFO:root:Opened visdom socket from ip: 127.0.0.1
+INFO:tornado.access:200 POST /env/val (127.0.0.1) 0.26ms
+INFO:tornado.access:101 GET /vis_socket (127.0.0.1) 0.21ms
+INFO:root:Opened visdom socket from ip: 127.0.0.1
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.28ms
+INFO:tornado.access:200 POST /events (127.0.0.1) 0.26ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.24ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.24ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.23ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.24ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.23ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.23ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.23ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.23ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.24ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.23ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.21ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.23ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.24ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.21ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.23ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.23ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.20ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.20ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.20ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.21ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.20ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.20ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.23ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.20ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.23ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.20ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.23ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.21ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.20ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.20ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.20ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.22ms
+INFO:tornado.access:200 POST /win_exists (127.0.0.1) 0.21ms
+INFO:tornado.access:200 POST /update (127.0.0.1) 0.24ms
+INFO:root:from web client: {"cmd":"close","data":"loss","eid":"train"}
+INFO:root:closing window loss
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/train+val (127.0.0.1) 2.72ms
+INFO:tornado.access:200 POST /env/val (127.0.0.1) 2.47ms
+INFO:tornado.access:200 POST /env/val (127.0.0.1) 0.26ms
+INFO:tornado.access:101 GET /vis_socket (127.0.0.1) 0.21ms
+INFO:root:Opened visdom socket from ip: 127.0.0.1

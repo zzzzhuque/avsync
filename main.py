@@ -1,5 +1,6 @@
 # coding=utf-8
 import os
+import tqdm
 import visdom
 import fire
 import ipdb
@@ -116,38 +117,33 @@ def val(dataroot):
 	#============================================
     #============    load data    ===============
     #============================================
-    ipdb.set_trace()
+    #ipdb.set_trace()
     val = validation()
     astart = 0
     alength = 20
     astep = 4
     valData = lipDataset(dataroot, False, False, True, opt.augment)
-    for i, datadir in enumerate(valData.datapathSet):
+    for i, datadir in tqdm.tqdm(enumerate(valData.datapathSet)):
         mfcc = np.load(os.path.join(datadir, 'mfcc.npy'))
         frames = np.load(os.path.join(datadir, 'frames.npy'))
         frames = frames[10:15, :, :]
         val.initPair(mfcc, frames)
         val.calcL2dist(astart, astep, alength)
+    top1 = 1.0*val.top1/len(valData)
+    top5 = 1.0*val.top5/len(valData)
+    top10 = 1.0*val.top10/len(valData)
+    print('top1', top1, 'top5', top5, 'top10', top10)
     val.free()
 
-
-
-def drawdist():
-    #ipdb.set_trace()
-    mfcc = np.load('/home/litchi/zhuque/omg/data/val/auncorrelatev/mfcc.npy')
-    frames = np.load('/home/litchi/zhuque/omg/data/val/auncorrelatev/frames.npy')
-    frames = frames[23:28, :, :]
-
-    val = validation(mfcc, frames)
-    astart = 0
-    alength = 20
-    astep = 4
-    val.calcL2dist(astart, astep, alength)
-    val.free()
 
 class validation():
     def __init__(self):
-        self.visual = Visualizer(opt.valenv)
+        #self.visual = Visualizer(opt.valenv)
+
+        self.top1 = 0
+        self.top5 = 0
+        self.top10 = 0
+
         self.anetwork = audioNetwork().double().to(opt.device)
         self.vnetwork = videoNetwork().double().to(opt.device)
         self.anetwork.load('./checkpoints/anetwork20.pth')
@@ -183,20 +179,29 @@ class validation():
         return array
 
     def calcL2dist(self, astart, astep, alength):
-		#=====================================================
-		#===========   calculate and draw   ==================
-		#=====================================================
+        #=====================================================
+        #===========   calculate and draw   ==================
+        #=====================================================
         #ipdb.set_trace()
         vfeat = self.vnetwork.forward(self.augvfeat)
         index = 1
+        L2distSet = []
         for i in range(astart, self.mfcc.shape[1]-alength, astep):
             #ipdb.set_trace()
             ainput = torch.DoubleTensor(self.mfcc[:, i:i+alength]).unsqueeze(0).unsqueeze(0).to(opt.device)
             afeat = self.anetwork.forward(ainput)
             L2dist = F.pairwise_distance(vfeat, afeat, p=2)
-            print(index, L2dist)
-            self.visual.plot(index, L2dist, opt.valwin)
+            #print(index, L2dist)
+            L2distSet.append(L2dist)
+            #self.visual.plot(index, L2dist, opt.valwin)    #  draw L2 distance
             index = index+1
+        #print(L2distSet)
+        if L2distSet.index(min(L2distSet)) == 10:
+            self.top1 = self.top1+1
+        if 8<=L2distSet.index(min(L2distSet)) and L2distSet.index(min(L2distSet))<=12:
+            self.top5 = self.top5+1
+        if 6<=L2distSet.index(min(L2distSet)) and L2distSet.index(min(L2distSet))<=14:
+            self.top10 = self.top10+1
 
 
 
