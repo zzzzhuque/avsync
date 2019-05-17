@@ -1,4 +1,5 @@
 # coding=utf-8
+import os
 import visdom
 import fire
 import ipdb
@@ -78,6 +79,7 @@ def train(dataroot):
     videoOptimizer = optim.SGD(vnetwork.parameters(), opt.videolr, opt.videoMomentum)
     criterion = ContrastiveLoss()
 
+    index = 1
     # start training
     for epoch in range(opt.max_epoch):
         for idx, (vinput, ainput, label) in enumerate(trainDataLoader):
@@ -100,53 +102,34 @@ def train(dataroot):
 
             if (idx+1)%opt.print_freq == 0:
                 print('---epoch---:', epoch+1, '    loss:', loss)
-                vis.plot(idx, loss, opt.trainwin)
+                vis.plot(index, loss, opt.trainwin)
+                index = index+1
 
 
         anetwork.save(opt.save_model_path+'/anetwork'+str(epoch+1)+'.pth')
         vnetwork.save(opt.save_model_path+'/vnetwork'+str(epoch+1)+'.pth')
 
 
-def vis():
-    import visdom
-    vis = visdom.Visdom(env='sin')
-    x = torch.arange(1, 30, 0.01)
-    y = torch.sin(x)
-    vis.line(X=x, Y=y, win='sinx', opts={'title':'y=sin(x)'})
+
 
 def val(dataroot):
-	#ipdb.set_trace()
 	#============================================
     #============    load data    ===============
     #============================================
+    ipdb.set_trace()
+    val = validation()
+    astart = 0
+    alength = 20
+    astep = 4
     valData = lipDataset(dataroot, False, False, True, opt.augment)
-    valDataLoader = DataLoader(
-                      valData,
-                      batch_size=opt.batch_size,
-                      num_workers=opt.num_workers,
-                      shuffle=opt.shuffle,
-                      drop_last=opt.drop_last
-    )
-	#==============================================
-	#=============    load model    ===============
-	#==============================================
-    anetwork = audioNetwork().double().to(opt.device)
-    vnetwork = videoNetwork().double().to(opt.device)
-    anetwork.load('./checkpoints/anetwork20.pth')
-    vnetwork.load('./checkpoints/vnetwork20.pth')
-    for idx, (vinput, ainput, label) in enumerate(valDataLoader):
-        vinput = vinput.to(opt.device)
-        ainput = ainput.to(opt.device)
-        #label = label.to(opt.device)
-        
-        vfeat = vnetwork.forward(vinput)
-        afeat = anetwork.forward(ainput)
-        #ipdb.set_trace()
-        L2dist = F.pairwise_distance(vfeat, afeat, p=2)
-        predictPair = zip(L2dist, label)
-        for pair in predictPair:
-            print(pair)
-        break
+    for i, datadir in enumerate(valData.datapathSet):
+        mfcc = np.load(os.path.join(datadir, 'mfcc.npy'))
+        frames = np.load(os.path.join(datadir, 'frames.npy'))
+        frames = frames[10:15, :, :]
+        val.initPair(mfcc, frames)
+        val.calcL2dist(astart, astep, alength)
+    val.free()
+
 
 
 def drawdist():
@@ -163,10 +146,7 @@ def drawdist():
     val.free()
 
 class validation():
-    def __init__(self, mfcc, frames):
-        self.mfcc = mfcc
-        self.frames = frames
-
+    def __init__(self):
         self.visual = Visualizer(opt.valenv)
         self.anetwork = audioNetwork().double().to(opt.device)
         self.vnetwork = videoNetwork().double().to(opt.device)
@@ -180,6 +160,10 @@ class validation():
                         tv.transforms.RandomHorizontalFlip(0.2),
                         tv.transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0, hue=0)
         ])
+
+    def initPair(self, mfcc, frames):
+        self.mfcc = mfcc
+        self.frames = frames
 
         self.augvfeat = []
         for i in range(self.frames.shape[0]):
@@ -214,7 +198,7 @@ class validation():
             self.visual.plot(index, L2dist, opt.valwin)
             index = index+1
 
-		
+
 
 
 if __name__ == '__main__':

@@ -261,13 +261,14 @@ if __name__ == '__main__':
     #==============================================
     #===========    generate npy file   ===========
     #==============================================
-    dataset = createDataset()
-    dataset.processMP4('/home/litchi/zhuque/lipread_mp4')
+    #dataset = createDataset()
+    #dataset.processMP4('/home/litchi/zhuque/lipread_mp4')
     #==============================================
     #=======   check __getitem__ func   ===========
     #==============================================
-    #lippath = lipDataset('/home/litchi/zhuque/expdata', False, False, True, True)
-    #lippath[5]
+    lippath = lipDataset('/home/litchi/zhuque/expdata', True, False, False, True)
+    ipdb.set_trace()
+    lippath[5]
     #trainloader = DataLoader(lippath, batch_size=2, num_workers=4, shuffle=True)
     #for (vfeat, afeat, label) in trainloader:
     #    ipdb.set_trace()
