@@ -126,7 +126,7 @@ def val(dataroot):
     for i, datadir in tqdm.tqdm(enumerate(valData.datapathSet)):
         mfcc = np.load(os.path.join(datadir, 'mfcc.npy'))
         frames = np.load(os.path.join(datadir, 'frames.npy'))
-        frames = frames[10:15, :, :]
+        frames = frames[5:25, :, :]
         val.initPair(mfcc, frames)
         val.calcL2dist(astart, astep, alength)
     top1 = 1.0*val.top1/len(valData)
@@ -164,7 +164,9 @@ class validation():
         self.augvfeat = []
         for i in range(self.frames.shape[0]):
             self.augvfeat.append(self.normalizeArray(self.frames[i, :, :]))
+        #ipdb.set_trace()
         self.augvfeat = torch.DoubleTensor(self.augvfeat).unsqueeze(0).to(opt.device)
+        #return
 
     def free(self):
         self.anetwork.train()
@@ -183,25 +185,35 @@ class validation():
         #===========   calculate and draw   ==================
         #=====================================================
         #ipdb.set_trace()
-        vfeat = self.vnetwork.forward(self.augvfeat)
-        index = 1
-        L2distSet = []
-        for i in range(astart, self.mfcc.shape[1]-alength, astep):
+        flag1 = True
+        flag2 = True
+        flag3 = True
+        for idx in range(5, 25, 5):
             #ipdb.set_trace()
-            ainput = torch.DoubleTensor(self.mfcc[:, i:i+alength]).unsqueeze(0).unsqueeze(0).to(opt.device)
-            afeat = self.anetwork.forward(ainput)
-            L2dist = F.pairwise_distance(vfeat, afeat, p=2)
-            #print(index, L2dist)
-            L2distSet.append(L2dist)
-            #self.visual.plot(index, L2dist, opt.valwin)    #  draw L2 distance
-            index = index+1
-        #print(L2distSet)
-        if L2distSet.index(min(L2distSet)) == 10:
-            self.top1 = self.top1+1
-        if 8<=L2distSet.index(min(L2distSet)) and L2distSet.index(min(L2distSet))<=12:
-            self.top5 = self.top5+1
-        if 6<=L2distSet.index(min(L2distSet)) and L2distSet.index(min(L2distSet))<=14:
-            self.top10 = self.top10+1
+            vinput = self.augvfeat[:, idx-5:idx, :, :]
+            vfeat = self.vnetwork.forward(vinput)
+            #index = 1
+            L2distSet = []
+            for i in range(astart, self.mfcc.shape[1]-alength, astep):
+                #ipdb.set_trace()
+                ainput = torch.DoubleTensor(self.mfcc[:, i:i+alength]).unsqueeze(0).unsqueeze(0).to(opt.device)
+                afeat = self.anetwork.forward(ainput)
+                L2dist = F.pairwise_distance(vfeat, afeat, p=2)
+                #print(index, L2dist)
+                L2distSet.append(L2dist)
+                #self.visual.plot(index, L2dist, opt.valwin)    #  draw L2 distance
+                #index = index+1
+            #print(L2distSet)
+            if L2distSet.index(min(L2distSet)) == idx and flag1:
+                self.top1 = self.top1+1
+                flag1 = False
+            if (idx-2)<=L2distSet.index(min(L2distSet)) and L2distSet.index(min(L2distSet))<=(idx+2) and flag2:
+                self.top5 = self.top5+1
+                flag2 = False
+            if (idx-4)<=L2distSet.index(min(L2distSet)) and L2distSet.index(min(L2distSet))<=(idx+4) and flag3:
+                self.top10 = self.top10+1
+                flag3 = False
+            
 
 
 
